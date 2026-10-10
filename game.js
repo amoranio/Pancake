@@ -2,7 +2,7 @@
   const scriptEl = document.currentScript || document.querySelector("script[data-pancake]");
   const BASE = new URL("./", (scriptEl && scriptEl.src) || location.href).href;
   const asset = (name) => BASE + "assets/" + name;
-  const SCENE_VERSION = "detail-v1";
+  const SCENE_VERSION = "original-mascots-v1";
   const PICTURE = asset("coast.jpg") + "?v=" + SCENE_VERSION;
   // Full-resolution artwork: twice the detail with the same world and camera scale.
   const IMG_W = 3768;
@@ -22,10 +22,11 @@
   // Finds and camera positions belong to this exact illustration.
   const STORE = "daddy-pancake-hunt-v5";
 
+  // The main mascots retain the round pancake-body designs in daddy.png and sunday.png.
   // Bounds measured directly in the single coast illustration.
   const TARGETS = [
-    { id: "daddy", name: "Daddy Pancake", x: 592, y: 506, w: 92, h: 108 },
-    { id: "sunday", name: "Top-Hat Daddy", x: 2244, y: 1380, w: 88, h: 120 },
+    { id: "daddy", name: "Daddy Pancake", x: 592, y: 500, w: 84, h: 100 },
+    { id: "sunday", name: "Top-Hat Daddy", x: 2236, y: 1360, w: 88, h: 116 },
     { id: "mama", name: "Mama Maple", x: 2856, y: 1306, w: 84, h: 112 },
     { id: "baby", name: "Baby Batter", x: 1636, y: 542, w: 68, h: 88 },
     { id: "auntie", name: "Auntie Amber", x: 3602, y: 578, w: 80, h: 104 },
