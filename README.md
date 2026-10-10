@@ -1,6 +1,8 @@
 # Where's Daddy Pancake
 
-A sprawling illustrated pancake coast, more than five times the previous search area. Explore the harbour, beach, seaside market, dune gardens, fairground, and picnic meadow. Daddy and eleven family members are scattered across all six areas among similarly dressed beachgoers.
+Explore one continuous illustrated pancake coast. The harbour, beach, market, dune gardens, fairground, and picnic meadow flow into one another through shared paths, vegetation, and crowds. The whole scene uses a common perspective and character scale, without separate framed panels.
+
+Daddy and eleven family members are painted into the crowd, with similar hats, scarves, and outfits to make you look twice.
 
 - Scroll or drag in every direction. Arrow keys pan; plus and minus zoom.
 - The key shows close-ups from the actual artwork, so every portrait matches a findable character.
@@ -9,18 +11,18 @@ A sprawling illustrated pancake coast, more than five times the previous search 
 - A ring appears only after a real find. Find all twelve to finish.
 - Progress, zoom, and panel preferences stay in this browser. Clear finds to play again.
 
-The map contains 4480 × 1984 pixels of new artwork and occupies a 13440 × 5952 scrolling world at 100% zoom. Zoom out to see the whole coast, or zoom in to compare faces. The map opens at the harbour rather than showing the entire search area at once.
+The expanded scrolling world remains 13440 pixels wide at 100% zoom. Zoom out to see the whole coast, or zoom in to compare faces. The map opens at the harbour rather than showing the entire search area at once.
 
 The site is static: serve this directory with any HTTP server. The existing GitHub Pages workflow publishes `main`.
 
 ## Checking changes
 
-Run `npm ci`, then `npx playwright install chromium` and `npm test`. To use an installed Chromium, run `CHROMIUM_PATH=/path/to/chromium npm test`. The browser checks cover desktop and mobile viewport sizes, complete map rendering, all twelve finds, neighboring misses, saved progress, zoom restoration, completion, resetting, minimap navigation, keyboard panning, dragging, and zooming out to the whole world.
+Run `npm ci`, then `npx playwright install chromium` and `npm test`. To use an installed Chromium, run `CHROMIUM_PATH=/path/to/chromium npm test`. Browser checks cover desktop and mobile viewport sizes, complete artwork rendering, the expanded scrolling area, matching portraits, all twelve finds, neighboring misses, saved progress, zoom restoration, completion, resetting, overview navigation, keyboard panning, mouse-wheel scrolling, dragging, and zooming out to the whole world.
 
 ## Updating the illustration
 
-Six `assets/map-*.jpg` illustrations each measure 1536 × 1024 pixels. Every character is already painted into its area's illustration. The browser draws the neighboring areas once onto one canvas, blending their empty sandy margins over a 64-pixel overlap. The overview uses that same finished picture. There are no independent character overlays.
+`assets/coast.jpg` is the complete continuous illustration, including every character. The browser draws it onto one canvas; the overview copies that same picture, and the key crops the same asset. The game does not blend independent scenes or overlay character sprites.
 
-`MAP_TILES` in `game.js` sets the area layout. `TARGETS` uses coordinates in the complete 4480 × 1984 picture: `x`/`y` is the character's center, `w`/`h` describes its bounds, and `tile` selects the original illustration for its portrait crop. These values drive matching portraits, elliptical click areas, and found rings. After changing artwork or positions, measure the characters again and bump `SCENE_VERSION` and the saved-state key. Update the overview aspect ratio if the overall map shape changes.
+`IMG_W` and `IMG_H` in `game.js` match the artwork's native pixel dimensions. `SCALE` preserves the large scrolling world. `TARGETS` uses native pixel coordinates: `x`/`y` is the character's center and `w`/`h` describes its bounds. Those values drive matching portraits, elliptical click areas, and found rings. `MAP_AREAS` contains normalized landmark centers for the location label, without imposing visible boundaries on the illustration.
 
-The previous scene and individual PNG portraits are retained as reference assets.
+After changing the artwork or positions, measure the characters again and bump `SCENE_VERSION` and the saved-state key. Update the overview aspect ratio if the picture shape changes. Earlier map and portrait assets are retained for reference.

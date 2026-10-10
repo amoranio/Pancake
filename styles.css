@@ -463,7 +463,7 @@ html, body { height: 100%; margin: 0; }
 .mini-shot {
   position: relative;
   width: 100%;
-  aspect-ratio: 4480 / 1984;
+  aspect-ratio: 1884 / 835;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;

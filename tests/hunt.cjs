@@ -38,8 +38,14 @@ const server = http.createServer((req, res) => {
       await page.locator('#toggle-mini').click();
       assert.equal(await page.locator('.world .picture').count(), 1, 'One integrated scene');
       assert.equal(await page.locator('.world img, .world button').count(), 0, 'No target sprites');
-      const map = await page.locator('.picture').evaluate(canvas => ({ width: canvas.width, height: canvas.height }));
-      assert.ok(map.width * map.height > 1536 * 1024 * 5, 'More than five times the original search area');
+      const map = await page.locator('.picture').evaluate(canvas => {
+        const world = canvas.parentElement;
+        const zoom = parseFloat(document.querySelector('#zoom-label').textContent) / 100;
+        return { worldWidth: parseFloat(world.style.width) / zoom, worldHeight: parseFloat(world.style.height) / zoom };
+      });
+      assert.ok(map.worldWidth * map.worldHeight > 4608 * 3072 * 5, 'Retain the expanded scrolling search area');
+      assert.equal(await page.locator('.key-item .scene-portrait').evaluateAll(nodes =>
+        new Set(nodes.map(node => node.style.backgroundImage)).size), 1, 'All close-ups come from the same continuous artwork');
       assert.equal(await page.locator('.picture').evaluate(canvas => {
         const ctx = canvas.getContext('2d');
         return [0.15, 0.5, 0.85].every(x => [0.25, 0.75].every(y =>
