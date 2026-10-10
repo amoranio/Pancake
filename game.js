@@ -2,10 +2,11 @@
   const scriptEl = document.currentScript || document.querySelector("script[data-pancake]");
   const BASE = new URL("./", (scriptEl && scriptEl.src) || location.href).href;
   const asset = (name) => BASE + "assets/" + name;
-  const SCENE_VERSION = "seamless-v1";
+  const SCENE_VERSION = "detail-v1";
   const PICTURE = asset("coast.jpg") + "?v=" + SCENE_VERSION;
-  const IMG_W = 1884;
-  const IMG_H = 835;
+  // Full-resolution artwork: twice the detail with the same world and camera scale.
+  const IMG_W = 3768;
+  const IMG_H = 1670;
   // Landmarks are regions of one illustration, rather than separate panels.
   const MAP_AREAS = [
     { name: "The harbour", x: 0.14, y: 0.3 },
@@ -23,18 +24,18 @@
 
   // Bounds measured directly in the single coast illustration.
   const TARGETS = [
-    { id: "daddy", name: "Daddy Pancake", x: 296, y: 253, w: 46, h: 54 },
-    { id: "sunday", name: "Top-Hat Daddy", x: 1122, y: 690, w: 44, h: 60 },
-    { id: "mama", name: "Mama Maple", x: 1428, y: 653, w: 42, h: 56 },
-    { id: "baby", name: "Baby Batter", x: 818, y: 271, w: 34, h: 44 },
-    { id: "auntie", name: "Auntie Amber", x: 1801, y: 289, w: 40, h: 52 },
-    { id: "uncle", name: "Uncle Crumble", x: 1714, y: 516, w: 44, h: 60 },
-    { id: "nana", name: "Nana Nutmeg", x: 476, y: 532, w: 42, h: 52 },
-    { id: "bess", name: "Blueberry Bess", x: 242, y: 705, w: 40, h: 54 },
-    { id: "chef", name: "Chef Whisk", x: 1478, y: 195, w: 44, h: 56 },
-    { id: "pat", name: "Pat Butter", x: 795, y: 577, w: 36, h: 48 },
-    { id: "captain", name: "Captain Crepe", x: 403, y: 193, w: 40, h: 52 },
-    { id: "pip", name: "Strawberry Pip", x: 1052, y: 276, w: 32, h: 46 },
+    { id: "daddy", name: "Daddy Pancake", x: 592, y: 506, w: 92, h: 108 },
+    { id: "sunday", name: "Top-Hat Daddy", x: 2244, y: 1380, w: 88, h: 120 },
+    { id: "mama", name: "Mama Maple", x: 2856, y: 1306, w: 84, h: 112 },
+    { id: "baby", name: "Baby Batter", x: 1636, y: 542, w: 68, h: 88 },
+    { id: "auntie", name: "Auntie Amber", x: 3602, y: 578, w: 80, h: 104 },
+    { id: "uncle", name: "Uncle Crumble", x: 3428, y: 1032, w: 88, h: 120 },
+    { id: "nana", name: "Nana Nutmeg", x: 952, y: 1064, w: 84, h: 104 },
+    { id: "bess", name: "Blueberry Bess", x: 484, y: 1410, w: 80, h: 108 },
+    { id: "chef", name: "Chef Whisk", x: 2956, y: 390, w: 88, h: 112 },
+    { id: "pat", name: "Pat Butter", x: 1590, y: 1154, w: 72, h: 96 },
+    { id: "captain", name: "Captain Crepe", x: 806, y: 386, w: 80, h: 104 },
+    { id: "pip", name: "Strawberry Pip", x: 2104, y: 552, w: 64, h: 92 },
   ];
 
   function placeName(imageX, imageY) {
@@ -181,7 +182,7 @@
     const keyList = hunt.querySelector("#key-list");
     // The key shows the actual painted character, never a mismatched sprite.
     function paintPortrait(node, t) {
-      const size = Math.max(t.w, t.h) + 8;
+      const size = Math.max(t.w, t.h) + 16;
       node.style.backgroundImage = `url("${PICTURE}")`;
       node.style.backgroundSize = `${IMG_W / size * 100}% ${IMG_H / size * 100}%`;
       node.style.backgroundPosition = `${(t.x - size / 2) / (IMG_W - size) * 100}% ${(t.y - size / 2) / (IMG_H - size) * 100}%`;
@@ -217,8 +218,8 @@
       for (const t of TARGETS) {
         const ring = rings.get(t.id);
         if (!ring) continue;
-        ring.style.width = (t.w + 8) * SCALE * zoom + "px";
-        ring.style.height = (t.h + 8) * SCALE * zoom + "px";
+        ring.style.width = (t.w + 16) * SCALE * zoom + "px";
+        ring.style.height = (t.h + 16) * SCALE * zoom + "px";
         ring.style.left = t.x * SCALE * zoom + "px";
         ring.style.top = t.y * SCALE * zoom + "px";
       }

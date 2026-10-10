@@ -37,6 +37,14 @@ const server = http.createServer((req, res) => {
       await page.locator('#toggle-key').click();
       await page.locator('#toggle-mini').click();
       assert.equal(await page.locator('.world .picture').count(), 1, 'One integrated scene');
+      assert.deepEqual(await page.locator('.picture').evaluate(canvas => [canvas.width, canvas.height]),
+        [3768, 1670], 'Preserve restored detail in the canvas backing image');
+      assert.deepEqual(await page.evaluate(async () => {
+        const image = new Image();
+        image.src = 'assets/coast.jpg';
+        await image.decode();
+        return [image.naturalWidth, image.naturalHeight];
+      }), [3768, 1670], 'Load a genuinely higher-resolution source, not a stretched small image');
       assert.equal(await page.locator('.world img, .world button').count(), 0, 'No target sprites');
       const map = await page.locator('.picture').evaluate(canvas => {
         const world = canvas.parentElement;
@@ -69,7 +77,7 @@ const server = http.createServer((req, res) => {
         }, { x, y });
         await page.mouse.click(point.x, point.y);
       }
-      await clickPoint(850, 55);
+      await clickPoint(1700, 110);
       assert.equal(await page.locator('#progress').textContent(), '0 of 12', 'Water misses');
       const first = targets[0];
       await clickPoint(first.x + first.w, first.y);
