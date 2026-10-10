@@ -1,0 +1,6 @@
+{
+  "name": "daddy-pancake-hunt",
+  "private": true,
+  "scripts": { "test": "node tests/hunt.cjs" },
+  "devDependencies": { "playwright": "1.62.1" }
+}
