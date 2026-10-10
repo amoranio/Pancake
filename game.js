@@ -2,38 +2,47 @@
   const scriptEl = document.currentScript || document.querySelector("script[data-pancake]");
   const BASE = new URL("./", (scriptEl && scriptEl.src) || location.href).href;
   const asset = (name) => BASE + "assets/" + name;
-  const PICTURE = asset("picture.jpg") + "?v=4";
-
-  const IMG_W = 1536;
-  const IMG_H = 1024;
+  const SCENE_VERSION = "expanded-v1";
+  const TILE_W = 1536;
+  const TILE_H = 1024;
+  const OVERLAP = 64;
+  const MAP_TILES = [
+    { id: "harbour", name: "The harbour", col: 0, row: 0 },
+    { id: "beach", name: "The beach", col: 1, row: 0 },
+    { id: "market", name: "The seaside market", col: 2, row: 0 },
+    { id: "gardens", name: "The dune gardens", col: 0, row: 1 },
+    { id: "fairground", name: "The fairground", col: 1, row: 1 },
+    { id: "picnic", name: "The picnic meadow", col: 2, row: 1 },
+  ].map((tile) => ({ ...tile, x: tile.col * (TILE_W - OVERLAP),
+    y: tile.row * (TILE_H - OVERLAP), src: asset("map-" + tile.id + ".jpg") + "?v=" + SCENE_VERSION }));
+  const IMG_W = TILE_W * 3 - OVERLAP * 2;
+  const IMG_H = TILE_H * 2 - OVERLAP;
   const SCALE = 3;
   const WORLD_W = IMG_W * SCALE;
   const WORLD_H = IMG_H * SCALE;
   // Finds and camera positions belong to this exact illustration.
-  const STORE = "daddy-pancake-hunt-v3";
+  const STORE = "daddy-pancake-hunt-v4";
 
-  // Bounds measured against picture.jpg in its native 1536 × 1024 pixels.
-  // These also define the matching portrait crops and post-find rings.
+  // Bounds measured in the full map; tile selects the matching artwork crop.
   const TARGETS = [
-    { id: "daddy", name: "Daddy Pancake", x: 501, y: 397, w: 96, h: 124 },
-    { id: "sunday", name: "Top-Hat Daddy", x: 1197, y: 680, w: 106, h: 154 },
-    { id: "mama", name: "Mama Maple", x: 827, y: 543, w: 102, h: 112 },
-    { id: "baby", name: "Baby Batter", x: 1325, y: 400, w: 92, h: 126 },
-    { id: "auntie", name: "Auntie Amber", x: 316, y: 703, w: 102, h: 124 },
-    { id: "uncle", name: "Uncle Crumble", x: 1014, y: 269, w: 102, h: 114 },
-    { id: "nana", name: "Nana Nutmeg", x: 671, y: 832, w: 112, h: 140 },
-    { id: "bess", name: "Blueberry Bess", x: 532, y: 225, w: 96, h: 92 },
-    { id: "chef", name: "Chef Whisk", x: 184, y: 461, w: 120, h: 164 },
-    { id: "pat", name: "Pat Butter", x: 895, y: 819, w: 102, h: 120 },
-    { id: "captain", name: "Captain Crepe", x: 1390, y: 877, w: 110, h: 140 },
-    { id: "pip", name: "Strawberry Pip", x: 1257, y: 216, w: 92, h: 108 },
+    { id: "daddy", name: "Daddy Pancake", tile: "harbour", x: 536, y: 548, w: 98, h: 114 },
+    { id: "sunday", name: "Top-Hat Daddy", tile: "fairground", x: 2609, y: 1679, w: 88, h: 126 },
+    { id: "mama", name: "Mama Maple", tile: "picnic", x: 3393, y: 1483, w: 108, h: 122 },
+    { id: "baby", name: "Baby Batter", tile: "beach", x: 1882, y: 580, w: 98, h: 106 },
+    { id: "auntie", name: "Auntie Amber", tile: "market", x: 4116, y: 802, w: 102, h: 134 },
+    { id: "uncle", name: "Uncle Crumble", tile: "picnic", x: 4061, y: 1244, w: 102, h: 132 },
+    { id: "nana", name: "Nana Nutmeg", tile: "gardens", x: 1227, y: 1190, w: 78, h: 86 },
+    { id: "bess", name: "Blueberry Bess", tile: "gardens", x: 457, y: 1633, w: 88, h: 100 },
+    { id: "chef", name: "Chef Whisk", tile: "market", x: 3358, y: 385, w: 106, h: 130 },
+    { id: "pat", name: "Pat Butter", tile: "fairground", x: 1932, y: 1244, w: 76, h: 88 },
+    { id: "captain", name: "Captain Crepe", tile: "harbour", x: 1254, y: 390, w: 76, h: 94 },
+    { id: "pip", name: "Strawberry Pip", tile: "beach", x: 2605, y: 423, w: 84, h: 120 },
   ];
 
-  function placeName(imageY) {
-    const n = imageY / IMG_H;
-    if (n < 0.12) return "Open water";
-    if (n < 0.22) return "The shoreline";
-    return "The sand";
+  function placeName(imageX, imageY) {
+    const col = clamp(Math.floor(imageX / (TILE_W - OVERLAP)), 0, 2);
+    const row = clamp(Math.floor(imageY / (TILE_H - OVERLAP)), 0, 1);
+    return MAP_TILES.find((tile) => tile.col === col && tile.row === row).name;
   }
 
   const svg = (body) =>
@@ -62,13 +71,15 @@
     const saved = loadState();
     const found = new Set(Array.isArray(saved.found)
       ? saved.found.filter((id) => TARGETS.some((t) => t.id === id)) : []);
-    let zoom = clamp(saved.zoom || 0.48, 0.08, 1.05);
+    let zoom = clamp(saved.zoom || 0.48, 0.02, 1.05);
     let keyHidden = !!saved.keyHidden;
     let miniHidden = !!saved.miniHidden;
     let muted = !!saved.muted;
     let introOn = !saved.introSeen;
     let audioCtx = null;
     let blockClick = false;
+    let sceneReady = false;
+    let disposed = false;
     const cleanups = [];
     const rings = new Map();
 
@@ -98,17 +109,18 @@
         </div>
       </header>
       <div class="stage">
-        <div class="viewport" id="viewport" tabindex="0" aria-label="The shore. Click the spot where someone from the key is standing.">
+        <div class="viewport" id="viewport" tabindex="0" aria-label="The pancake coast. Scroll in every direction and click the character you find.">
           <div class="world" id="world">
-            <img class="picture" alt="A crowded pancake beach festival with twelve family members hidden among the beachgoers." draggable="false" src="${PICTURE}" />
+            <canvas class="picture" width="${IMG_W}" height="${IMG_H}" role="img" aria-label="One sprawling pancake coast, with a harbour, beach, market, dune gardens, fairground and picnic meadow. Twelve family members are hidden among the crowds."></canvas>
           </div>
         </div>
+        <p class="scene-status" id="scene-status" role="status">Loading the map…</p>
         <aside class="key" id="key">
           <div class="key-head">
             <h2>The key</h2>
             <button class="icon-btn" id="hide-key" type="button" aria-label="Hide key">${ICONS.hide}</button>
           </div>
-          <p class="key-note">They are painted into the shore with everyone else. Match the picture, then click that spot.</p>
+          <p class="key-note">They are hidden across the whole coast. Match the close-up, then click the character you find.</p>
           <ol class="key-list" id="key-list"></ol>
           <div class="key-foot">
             <button class="text-btn" id="clear" type="button">Clear finds</button>
@@ -117,26 +129,26 @@
         <button class="tab" id="show-key" type="button" hidden>Show key</button>
         <div class="mini" id="mini">
           <div class="mini-head">
-            <span>The shore</span>
+            <span>The whole coast</span>
             <button class="text-btn" id="hide-mini" type="button">Hide</button>
           </div>
           <div class="mini-shot" id="mini-shot">
-            <img alt="" draggable="false" src="${PICTURE}" />
+            <canvas width="420" height="${Math.round(420 * IMG_H / IMG_W)}" aria-hidden="true"></canvas>
           </div>
         </div>
         <div class="intro" id="intro">
           <div class="card">
             <h2>Daddy Pancake wandered off.</h2>
-            <p>One crowded shore. Twelve missing pancakes. Daddy and the family are hidden among the beachgoers, and plenty of hats look alike. Scroll or drag to explore, zoom in, and match the close-ups on the key. Click each character when you find them.</p>
+            <p>A whole pancake coast. Twelve missing pancakes. Explore the harbour, beach, market, gardens, fairground and picnic meadow. Daddy and the family are scattered across the crowds. Scroll or drag in every direction, zoom in, and match the close-ups on the key.</p>
             <div class="portraits">
               <div class="portrait"><span class="scene-portrait" data-portrait="daddy"></span><span>Daddy Pancake</span></div>
               <div class="portrait"><span class="scene-portrait" data-portrait="sunday"></span><span>Top-Hat Daddy</span></div>
             </div>
-            <button class="primary" id="start" type="button">Start looking</button>
+            <button class="primary" id="start" type="button" disabled>Loading the map…</button>
           </div>
         </div>
         <div class="banner" id="banner" hidden>
-          <h3>The whole shore.</h3>
+          <h3>The whole coast.</h3>
           <p id="banner-copy">You found all twelve.</p>
           <button class="primary" id="dismiss-win" type="button">Keep wandering</button>
         </div>
@@ -170,9 +182,10 @@
     // The key shows the actual painted character, never a mismatched sprite.
     function paintPortrait(node, t) {
       const size = Math.max(t.w, t.h) + 8;
-      node.style.backgroundImage = `url("${PICTURE}")`;
-      node.style.backgroundSize = `${IMG_W / size * 100}% ${IMG_H / size * 100}%`;
-      node.style.backgroundPosition = `${(t.x - size / 2) / (IMG_W - size) * 100}% ${(t.y - size / 2) / (IMG_H - size) * 100}%`;
+      const tile = MAP_TILES.find((tile) => tile.id === t.tile);
+      node.style.backgroundImage = `url("${tile.src}")`;
+      node.style.backgroundSize = `${TILE_W / size * 100}% ${TILE_H / size * 100}%`;
+      node.style.backgroundPosition = `${(t.x - tile.x - size / 2) / (TILE_W - size) * 100}% ${(t.y - tile.y - size / 2) / (TILE_H - size) * 100}%`;
       node.setAttribute("role", "img");
       node.setAttribute("aria-label", t.name);
     }
@@ -218,7 +231,7 @@
       const fitW = viewport.clientWidth / WORLD_W;
       const fitH = viewport.clientHeight / WORLD_H;
       if (!isFinite(fitW) || !isFinite(fitH)) return 0.16;
-      return Math.max(0.08, Math.min(fitW, fitH));
+      return Math.max(0.02, Math.min(fitW, fitH));
     }
 
     function setZoom(next, clientX, clientY) {
@@ -243,7 +256,8 @@
     function updateChrome() {
       const cx = (viewport.scrollLeft + viewport.clientWidth / 2) / zoom / SCALE;
       const cy = (viewport.scrollTop + viewport.clientHeight / 2) / zoom / SCALE;
-      where.textContent = placeName(cy);
+      where.textContent = WORLD_W * zoom <= viewport.clientWidth + 1 && WORLD_H * zoom <= viewport.clientHeight + 1
+        ? "The whole coast" : placeName(cx, cy);
       const mw = shot.clientWidth || 1;
       const mh = shot.clientHeight || 1;
       viewbox.style.left = (viewport.scrollLeft / (WORLD_W * zoom)) * mw + "px";
@@ -406,6 +420,7 @@
       viewport.classList.remove("dragging");
     };
     const onClick = (e) => {
+      if (!sceneReady) return;
       if (blockClick) {
         blockClick = false;
         return;
@@ -539,6 +554,57 @@
     applyPanels();
     layout();
 
+    // Paint the generated neighboring areas into one static search picture.
+    // Only empty sandy margins overlap; characters are baked into the artwork.
+    const picture = world.querySelector(".picture");
+    const status = hunt.querySelector("#scene-status");
+    const start = hunt.querySelector("#start");
+    Promise.all(MAP_TILES.map((tile) => new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve({ tile, img });
+      img.onerror = () => reject(new Error("Map artwork unavailable"));
+      img.src = tile.src;
+    }))).then((images) => {
+      if (disposed) return;
+      const ctx = picture.getContext("2d");
+      const blend = document.createElement("canvas");
+      blend.width = TILE_W;
+      blend.height = TILE_H;
+      const bctx = blend.getContext("2d");
+      for (const { tile, img } of images) {
+        bctx.clearRect(0, 0, TILE_W, TILE_H);
+        bctx.globalCompositeOperation = "source-over";
+        bctx.drawImage(img, 0, 0, TILE_W, TILE_H);
+        bctx.globalCompositeOperation = "destination-in";
+        if (tile.col) {
+          const fade = bctx.createLinearGradient(0, 0, OVERLAP, 0);
+          fade.addColorStop(0, "transparent");
+          fade.addColorStop(1, "black");
+          bctx.fillStyle = fade;
+          bctx.fillRect(0, 0, TILE_W, TILE_H);
+        }
+        if (tile.row) {
+          const fade = bctx.createLinearGradient(0, 0, 0, OVERLAP);
+          fade.addColorStop(0, "transparent");
+          fade.addColorStop(1, "black");
+          bctx.fillStyle = fade;
+          bctx.fillRect(0, 0, TILE_W, TILE_H);
+        }
+        ctx.drawImage(blend, tile.x, tile.y);
+      }
+      const miniCanvas = shot.querySelector("canvas");
+      miniCanvas.getContext("2d").drawImage(picture, 0, 0, miniCanvas.width, miniCanvas.height);
+      sceneReady = true;
+      picture.dataset.ready = "true";
+      status.hidden = true;
+      start.disabled = false;
+      start.textContent = "Start looking";
+    }).catch(() => {
+      if (disposed) return;
+      status.textContent = "The map couldn't load. Refresh to try again.";
+      start.textContent = "Refresh to load the map";
+    });
+
     let placeTries = 0;
     const placeCamera = () => {
       if (viewport.clientWidth < 40 || viewport.clientHeight < 40 || placeTries > 40) {
@@ -551,10 +617,10 @@
       }
       const targetLeft = Number.isFinite(saved.scrollLeft) && saved.introSeen
         ? saved.scrollLeft
-        : IMG_W / 2 * SCALE * zoom - viewport.clientWidth / 2;
+        : TILE_W / 2 * SCALE * zoom - viewport.clientWidth / 2;
       const targetTop = Number.isFinite(saved.scrollTop) && saved.introSeen
         ? saved.scrollTop
-        : IMG_H / 2 * SCALE * zoom - viewport.clientHeight / 2;
+        : TILE_H * 0.55 * SCALE * zoom - viewport.clientHeight / 2;
       viewport.scrollLeft = targetLeft;
       viewport.scrollTop = targetTop;
       const stuck = Math.abs(viewport.scrollLeft - targetLeft) < 3 && Math.abs(viewport.scrollTop - targetTop) < 3;
@@ -581,6 +647,7 @@
     });
 
     return function unmount() {
+      disposed = true;
       cleanups.forEach((fn) => fn());
       if (root.contains(hunt)) hunt.remove();
     };
