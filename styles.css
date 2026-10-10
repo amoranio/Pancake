@@ -161,7 +161,7 @@ html, body { height: 100%; margin: 0; }
 }
 .viewport::-webkit-scrollbar-corner { background: #ead9b0; }
 
-.world { position: relative; background: #f3d98a; }
+.world { position: relative; background: #f3d98a; overflow: hidden; }
 
 .picture {
   position: absolute;
@@ -172,6 +172,22 @@ html, body { height: 100%; margin: 0; }
   pointer-events: none;
   user-select: none;
 }
+
+.scene-status {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 4;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  font-weight: 800;
+}
+
+.scene-status[hidden] { display: none; }
+.primary:disabled { opacity: 0.65; cursor: wait; }
 
 .ring {
   position: absolute;
@@ -447,14 +463,14 @@ html, body { height: 100%; margin: 0; }
 .mini-shot {
   position: relative;
   width: 100%;
-  aspect-ratio: 1536 / 1024;
+  aspect-ratio: 4480 / 1984;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
   border: 1px solid var(--line);
 }
 
-.mini-shot img {
+.mini-shot img, .mini-shot canvas {
   width: 100%;
   height: 100%;
   object-fit: cover;
