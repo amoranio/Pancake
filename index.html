@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Where's Daddy Pancake</title>
+    <meta
+      name="description"
+      content="A huge seek-and-find map. Scroll every direction, spot Daddy Pancake and the family, and cross them off the key."
+    />
+    <meta name="theme-color" content="#f6e7c1" />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <style>
+      html, body { height: 100%; margin: 0; background: #f6e7c1; color: #3c2415; }
+      #app { height: 100%; }
+    </style>
+  </head>
+  <body>
+    <main id="app" aria-label="Where's Daddy Pancake">
+      <p style="font: 700 24px Georgia, serif; padding: 32px">Where's Daddy Pancake</p>
+    </main>
+    <script src="./game.js" data-pancake></script>
+    <script>
+      mountPancakeHunt(document.getElementById("app"));
+    </script>
+  </body>
+</html>
