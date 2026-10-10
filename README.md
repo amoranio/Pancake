@@ -1,12 +1,13 @@
 # Where's Daddy Pancake
 
-A seek-and-find town, bigger than the window. Scroll or drag in every direction, match the faces on the key, and click who you actually find.
+One continuous shore, bigger than the window. Scroll or drag in every direction, match the faces on the key, and click the spot where they are standing.
 
-Daddy Pancake (nightcap) and Top-Hat Daddy are both out there, plus ten relatives and neighbors. The crowd is full of lookalikes. Zoom in before you trust a hat.
+Daddy Pancake and the family are painted into the crowd, the same size as everyone else. Hats lie. Zoom in before you trust one.
 
 - The key lists every person, with their picture.
 - Hide the key any time, and bring it back.
-- Click the real one in the town and their name is crossed off.
+- Click the right place on the shore and their name is crossed off.
+- A ring appears only after a real find.
 - Your progress stays in this browser.
 
-Open the site and start in Butter Plaza. Nobody on the list is standing in the middle of that first view.
+The little map is the same picture. You start out on the water, so the family is not in the first view.
