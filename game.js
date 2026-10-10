@@ -2,33 +2,37 @@
   const scriptEl = document.currentScript || document.querySelector("script[data-pancake]");
   const BASE = new URL("./", (scriptEl && scriptEl.src) || location.href).href;
   const asset = (name) => BASE + "assets/" + name;
+  const PICTURE = asset("picture.jpg") + "?v=4";
 
-  const IMG_W = 1728;
-  const IMG_H = 1152;
+  const IMG_W = 1536;
+  const IMG_H = 1024;
   const SCALE = 3;
   const WORLD_W = IMG_W * SCALE;
   const WORLD_H = IMG_H * SCALE;
-  const STORE = "daddy-pancake-hunt-v2";
+  // Finds and camera positions belong to this exact illustration.
+  const STORE = "daddy-pancake-hunt-v3";
 
+  // Bounds measured against picture.jpg in its native 1536 × 1024 pixels.
+  // These also define the matching portrait crops and post-find rings.
   const TARGETS = [
-    { id: "daddy", name: "Daddy Pancake", src: "daddy.png", x: 300, y: 612, r: 40 },
-    { id: "sunday", name: "Top-Hat Daddy", src: "sunday.png", x: 540, y: 790, r: 42 },
-    { id: "mama", name: "Mama Maple", src: "mama.png", x: 800, y: 551, r: 40 },
-    { id: "baby", name: "Baby Batter", src: "baby.png", x: 1000, y: 918, r: 34 },
-    { id: "auntie", name: "Auntie Amber", src: "auntie.png", x: 1200, y: 651, r: 40 },
-    { id: "uncle", name: "Uncle Crumble", src: "uncle.png", x: 1460, y: 869, r: 42 },
-    { id: "nana", name: "Nana Nutmeg", src: "nana.png", x: 220, y: 970, r: 42 },
-    { id: "bess", name: "Blueberry Bess", src: "bess.png", x: 660, y: 1031, r: 40 },
-    { id: "chef", name: "Chef Whisk", src: "chef.png", x: 920, y: 709, r: 42 },
-    { id: "pat", name: "Pat Butter", src: "pat.png", x: 1300, y: 992, r: 40 },
-    { id: "captain", name: "Captain Crepe", src: "captain.png", x: 1580, y: 590, r: 42 },
-    { id: "pip", name: "Strawberry Pip", src: "pip.png", x: 420, y: 899, r: 32 },
+    { id: "daddy", name: "Daddy Pancake", x: 501, y: 397, w: 96, h: 124 },
+    { id: "sunday", name: "Top-Hat Daddy", x: 1197, y: 680, w: 106, h: 154 },
+    { id: "mama", name: "Mama Maple", x: 827, y: 543, w: 102, h: 112 },
+    { id: "baby", name: "Baby Batter", x: 1325, y: 400, w: 92, h: 126 },
+    { id: "auntie", name: "Auntie Amber", x: 316, y: 703, w: 102, h: 124 },
+    { id: "uncle", name: "Uncle Crumble", x: 1014, y: 269, w: 102, h: 114 },
+    { id: "nana", name: "Nana Nutmeg", x: 671, y: 832, w: 112, h: 140 },
+    { id: "bess", name: "Blueberry Bess", x: 532, y: 225, w: 96, h: 92 },
+    { id: "chef", name: "Chef Whisk", x: 184, y: 461, w: 120, h: 164 },
+    { id: "pat", name: "Pat Butter", x: 895, y: 819, w: 102, h: 120 },
+    { id: "captain", name: "Captain Crepe", x: 1390, y: 877, w: 110, h: 140 },
+    { id: "pip", name: "Strawberry Pip", x: 1257, y: 216, w: 92, h: 108 },
   ];
 
   function placeName(imageY) {
     const n = imageY / IMG_H;
-    if (n < 0.22) return "Open water";
-    if (n < 0.4) return "The shoreline";
+    if (n < 0.12) return "Open water";
+    if (n < 0.22) return "The shoreline";
     return "The sand";
   }
 
@@ -56,7 +60,8 @@
   function mountPancakeHunt(root) {
     if (!root) return () => {};
     const saved = loadState();
-    const found = new Set(Array.isArray(saved.found) ? saved.found : []);
+    const found = new Set(Array.isArray(saved.found)
+      ? saved.found.filter((id) => TARGETS.some((t) => t.id === id)) : []);
     let zoom = clamp(saved.zoom || 0.48, 0.08, 1.05);
     let keyHidden = !!saved.keyHidden;
     let miniHidden = !!saved.miniHidden;
@@ -95,7 +100,7 @@
       <div class="stage">
         <div class="viewport" id="viewport" tabindex="0" aria-label="The shore. Click the spot where someone from the key is standing.">
           <div class="world" id="world">
-            <img class="picture" alt="" draggable="false" src="${asset("picture.jpg")}?v=3" />
+            <img class="picture" alt="A crowded pancake beach festival with twelve family members hidden among the beachgoers." draggable="false" src="${PICTURE}" />
           </div>
         </div>
         <aside class="key" id="key">
@@ -116,16 +121,16 @@
             <button class="text-btn" id="hide-mini" type="button">Hide</button>
           </div>
           <div class="mini-shot" id="mini-shot">
-            <img alt="" draggable="false" src="${asset("picture.jpg")}?v=3" />
+            <img alt="" draggable="false" src="${PICTURE}" />
           </div>
         </div>
         <div class="intro" id="intro">
           <div class="card">
             <h2>Daddy Pancake wandered off.</h2>
-            <p>The shore is one long picture, much bigger than this window. Scroll or drag, then zoom until the crowd has faces. Twelve of them are on the key. Click the place they are standing. Hats in the crowd will lie to you.</p>
+            <p>One crowded shore. Twelve missing pancakes. Daddy and the family are hidden among the beachgoers, and plenty of hats look alike. Scroll or drag to explore, zoom in, and match the close-ups on the key. Click each character when you find them.</p>
             <div class="portraits">
-              <div class="portrait"><img alt="" src="${asset("daddy.png")}" /><span>Daddy Pancake</span></div>
-              <div class="portrait"><img alt="" src="${asset("sunday.png")}" /><span>Top-Hat Daddy</span></div>
+              <div class="portrait"><span class="scene-portrait" data-portrait="daddy"></span><span>Daddy Pancake</span></div>
+              <div class="portrait"><span class="scene-portrait" data-portrait="sunday"></span><span>Top-Hat Daddy</span></div>
             </div>
             <button class="primary" id="start" type="button">Start looking</button>
           </div>
@@ -162,11 +167,24 @@
     world.appendChild(miss);
 
     const keyList = hunt.querySelector("#key-list");
+    // The key shows the actual painted character, never a mismatched sprite.
+    function paintPortrait(node, t) {
+      const size = Math.max(t.w, t.h) + 8;
+      node.style.backgroundImage = `url("${PICTURE}")`;
+      node.style.backgroundSize = `${IMG_W / size * 100}% ${IMG_H / size * 100}%`;
+      node.style.backgroundPosition = `${(t.x - size / 2) / (IMG_W - size) * 100}% ${(t.y - size / 2) / (IMG_H - size) * 100}%`;
+      node.setAttribute("role", "img");
+      node.setAttribute("aria-label", t.name);
+    }
+    hunt.querySelectorAll("[data-portrait]").forEach((node) => {
+      paintPortrait(node, TARGETS.find((t) => t.id === node.dataset.portrait));
+    });
     for (const t of TARGETS) {
       const li = document.createElement("li");
       li.className = "key-item" + (found.has(t.id) ? " is-found" : "");
       li.dataset.key = t.id;
-      li.innerHTML = `<span class="thumb"><img alt="" src="${asset(t.src)}" /></span><span class="name"></span>`;
+      li.innerHTML = `<span class="thumb scene-portrait"></span><span class="name"></span>`;
+      paintPortrait(li.querySelector(".thumb"), t);
       li.querySelector(".name").textContent = t.name;
       keyList.appendChild(li);
       if (found.has(t.id)) ensureRing(t);
@@ -187,9 +205,8 @@
       for (const t of TARGETS) {
         const ring = rings.get(t.id);
         if (!ring) continue;
-        const size = Math.max(28, t.r * 2.15 * SCALE * zoom);
-        ring.style.width = size + "px";
-        ring.style.height = size + "px";
+        ring.style.width = (t.w + 8) * SCALE * zoom + "px";
+        ring.style.height = (t.h + 8) * SCALE * zoom + "px";
         ring.style.left = t.x * SCALE * zoom + "px";
         ring.style.top = t.y * SCALE * zoom + "px";
       }
@@ -338,9 +355,9 @@
     }
 
     function imagePoint(clientX, clientY) {
-      const rect = viewport.getBoundingClientRect();
-      const ix = (viewport.scrollLeft + (clientX - rect.left)) / zoom / SCALE;
-      const iy = (viewport.scrollTop + (clientY - rect.top)) / zoom / SCALE;
+      const rect = world.getBoundingClientRect();
+      const ix = (clientX - rect.left) / rect.width * IMG_W;
+      const iy = (clientY - rect.top) / rect.height * IMG_H;
       return { ix, iy };
     }
 
@@ -402,9 +419,9 @@
       let best = null;
       let bestD = Infinity;
       for (const t of TARGETS) {
-        const reach = Math.max(t.r, 30 / (zoom * SCALE));
-        const d = Math.hypot(t.x - ix, t.y - iy);
-        if (d <= reach && d < bestD) {
+        // Never grow the hit area into neighboring people when zoomed out.
+        const d = Math.hypot((t.x - ix) / (t.w / 2), (t.y - iy) / (t.h / 2));
+        if (d <= 1 && d < bestD) {
           best = t;
           bestD = d;
         }
@@ -534,10 +551,10 @@
       }
       const targetLeft = Number.isFinite(saved.scrollLeft) && saved.introSeen
         ? saved.scrollLeft
-        : 900 * SCALE * zoom - viewport.clientWidth / 2;
+        : IMG_W / 2 * SCALE * zoom - viewport.clientWidth / 2;
       const targetTop = Number.isFinite(saved.scrollTop) && saved.introSeen
         ? saved.scrollTop
-        : 280 * SCALE * zoom - viewport.clientHeight / 2;
+        : IMG_H / 2 * SCALE * zoom - viewport.clientHeight / 2;
       viewport.scrollLeft = targetLeft;
       viewport.scrollTop = targetTop;
       const stuck = Math.abs(viewport.scrollLeft - targetLeft) < 3 && Math.abs(viewport.scrollTop - targetTop) < 3;
